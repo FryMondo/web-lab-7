@@ -1,26 +1,425 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div class="form-box">
+    <form @submit.prevent>
+      <h2>Реєстрація</h2>
+      <div class="input-box">
+        <label>Email:</label>
+        <input v-model="email" @input="clearError('email-error')" type="text">
+        <div class="error-message" id="email-error">{{ errors.email }}</div>
+      </div>
+      <div class="input-box">
+        <label>Пароль:</label>
+        <input v-model="password" @input="clearError('password-error')" type="password">
+        <div class="error-message" id="password-error">{{ errors.password }}</div>
+      </div>
+      <div class="input-box">
+        <label>Прізвище:</label>
+        <input v-model="surname" @input="clearError('surname-error')" type="text">
+        <div class="error-message" id="surname-error">{{ errors.surname }}</div>
+      </div>
+      <div class="input-box">
+        <label>Ім'я:</label>
+        <input v-model="firstname" @input="clearError('first-name-error')" type="text">
+        <div class="error-message" id="first-name-error">{{ errors.firstname }}</div>
+      </div>
+      <div class="input-box">
+        <label>По батькові:</label>
+        <input v-model="middleName" @input="clearError('middle-name-error')" type="text">
+        <div class="error-message" id="middle-name-error">{{ errors.middleName }}</div>
+      </div>
+      <div class="input-gender">
+        <label>Стать:</label>
+        <label>Чоловік</label>
+        <input v-model="gender" @input="clearError('gender-error')" type="radio" value="Чоловік">
+        <label>Жінка</label>
+        <input v-model="gender" @input="clearError('gender-error')" type="radio" value="Жінка">
+        <div class="error-message" id="gender-error">{{ errors.gender }}</div>
+      </div>
+      <div class="input-phone">
+        <label>Номер телефону:</label>
+        <input v-model="phone" @input="onPhoneInput" type="text">
+        <div class="error-message" id="phone-error">{{ errors.phone }}</div>
+      </div>
+      <div class="input-date">
+        <label>Дата народження:</label>
+        <input v-model="birthDate" @input="clearError('date-error')" type="date">
+        <div class="error-message" id="date-error">{{ errors.birthDate }}</div>
+      </div>
+      <div class="input-group">
+        <label>Група:</label>
+        <select v-model="group" @change="clearError('group-error')">
+          <option value="ІА-21">ІА-21</option>
+          <option value="ІА-22">ІА-22</option>
+          <option value="ІА-23">ІА-23</option>
+          <option value="ІА-24">ІА-24</option>
+        </select>
+        <div class="error-message" id="group-error">{{ errors.group }}</div>
+      </div>
+      <button @click="validateAndCreateUser">Зареєструватися</button>
+    </form>
+    <button class="btn" @click="deleteSelectedRows">Видалити</button>
+    <button class="btn" @click="duplicateSelectedRows">Дублювати</button>
+    <table id="data-table">
+      <thead>
+      <tr>
+        <th>Вибір</th>
+        <th>Email</th>
+        <th>Пароль</th>
+        <th>Прізвище</th>
+        <th>Ім'я</th>
+        <th>По батькові</th>
+        <th>Стать</th>
+        <th>Номер телефону</th>
+        <th>Дата народження</th>
+        <th>Група</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr v-for="user in userinfo" :key="user.id">
+        <td><input type="checkbox" v-model="user.selected"></td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.password }}</td>
+        <td>{{ user.surname }}</td>
+        <td>{{ user.firstname }}</td>
+        <td>{{ user.middleName }}</td>
+        <td>{{ user.gender }}</td>
+        <td>{{ user.phone }}</td>
+        <td>{{ user.birthDate }}</td>
+        <td>{{ user.group }}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
 
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
-</script>
+  data() {
+    return {
+      userinfo: [
+        {
+          id: 1, email: 'example@gmail.com', password: 'qwerty123', surname: 'Petrenko', firstname: 'Petro',
+          middleName: 'Petrovich', gender: "Чоловік", phone: "+38(012) 345-67-89", birthDate: "2023-10-11",
+          group: "IA-22", selected: false
+        }
+      ],
+      email: '',
+      password: '',
+      surname: '',
+      firstname: '',
+      middleName: '',
+      gender: '',
+      phone: '+38(0__) ___-__-__',
+      birthDate: '',
+      group: '',
+      errors: {},
+      selectedRows: []
+    }
+  },
+  methods: {
+    createUser() {
+      const newUser = {
+        id: Date.now(),
+        email: this.email,
+        password: this.password,
+        surname: this.surname,
+        firstname: this.firstname,
+        middleName: this.middleName,
+        gender: this.gender,
+        phone: this.phone,
+        birthDate: this.birthDate,
+        group: this.group
+      };
+      this.userinfo.push(newUser);
+      this.email = '';
+      this.password = '';
+      this.surname = '';
+      this.firstname = '';
+      this.middleName = '';
+      this.gender = '';
+      this.phone = '+38(0__) ___-__-__';
+      this.birthDate = '';
+      this.group = '';
 
+      this.errors = {};
+    },
+    onPhoneInput() {
+      let phoneNumber = this.phone.replace(/\D/g, '');
+      if (!phoneNumber.startsWith('38')) {
+        phoneNumber = '38' + phoneNumber;
+      }
+      phoneNumber = phoneNumber.substr(0, 12);
+
+      let formattedPhoneNumber = '+38(';
+      for (let i = 2; i < phoneNumber.length && i < 5; i++) {
+        formattedPhoneNumber += phoneNumber[i];
+      }
+      formattedPhoneNumber += ') ';
+      for (let i = 5; i < phoneNumber.length && i < 8; i++) {
+        formattedPhoneNumber += phoneNumber[i];
+      }
+      formattedPhoneNumber += '-';
+      for (let i = 8; i < phoneNumber.length && i < 12; i++) {
+        formattedPhoneNumber += phoneNumber[i];
+      }
+      this.phone = formattedPhoneNumber;
+
+      if (phoneNumber.length === 12) {
+        this.clearError('phone-error');
+      } else {
+        this.errors.phone = '(!) Заповніть всі цифри в номері';
+      }
+    },
+    clearError(fieldId) {
+      this.errors[fieldId] = '';
+    },
+    validateAndCreateUser() {
+      this.errors = {};
+
+      if (!this.email) {
+        this.errors.email = '(!) Заповніть поле Email';
+      } else if (!this.validateEmail(this.email)) {
+        this.errors.email = '(!) Невірний формат Email';
+      }
+
+      if (!this.password) {
+        this.errors.password = '(!) Заповніть поле Пароль';
+      } else if (this.password.length < 8) {
+        this.errors.password = '(!) Пароль повинен містити принаймні 8 символів';
+      }
+
+      if (!this.surname) {
+        this.errors.surname = '(!) Заповніть поле Прізвище';
+      } else if (!/^[a-zA-Zа-яА-ЯёЁ\s\-']+$/i.test(this.surname)) {
+        this.errors.surname = '(!) Поле Прізвище не повинно містити цифри.';
+      }
+
+      if (!this.firstname) {
+        this.errors.firstname = '(!) Заповніть поле Ім\'я';
+      } else if (!/^[a-zA-Zа-яА-ЯёЁ\s\-']+$/i.test(this.firstname)) {
+        this.errors.firstname = '(!) Поле Ім\'я не повинно містити цифри.';
+      }
+
+      if (!this.middleName) {
+        this.errors.middleName = '(!) Заповніть поле По-батькові';
+      } else if (!/^[a-zA-Zа-яА-ЯёЁ\s\-']+$/i.test(this.middleName)) {
+        this.errors.middleName = '(!) Поле По-батькові не повинно містити цифри.';
+      }
+
+      if (!this.gender) {
+        this.errors.gender = '(!) Виберіть свою стать';
+      }
+
+      if (!this.group) {
+        this.errors.group = '(!) Виберіть групу';
+      }
+
+      if (!this.birthDate) {
+        this.errors.birthDate = '(!) Заповніть дату народження';
+      } else {
+        const birthDate = new Date(this.birthDate);
+        const today = new Date();
+        const minBirthDate = new Date(1900, 5, 22);
+        if (birthDate > today) {
+          this.errors.birthDate = '(!) Дата народження не може бути у майбутньому.';
+        }
+        if (birthDate < minBirthDate) {
+          this.errors.birthDate = '(!) Мінімальний рік народження - 1900';
+        }
+      }
+
+      if (Object.keys(this.errors).length === 0) {
+        this.createUser();
+      }
+    },
+    validateEmail(email) {
+      const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+      return emailPattern.test(email);
+    },
+    deleteSelectedRows() {
+      this.userinfo = this.userinfo.filter(user => !user.selected);
+    },
+    duplicateSelectedRows() {
+      const selectedUsers = this.userinfo.filter(user => user.selected);
+      const duplicatedUsers = selectedUsers.map(user => ({ ...user, id: Date.now(), selected: false }));
+      this.userinfo = [...this.userinfo, ...duplicatedUsers];
+    }
+  }
+};
+</script>
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(to bottom right, white, blue, violet);
+  background-size: cover;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 125vh;
+}
+
+.form-box {
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+}
+
+h2 {
+  font-size: 2em;
+  color: #fff;
   text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+}
+
+.input-box, .input-gender, .input-phone, .input-date, .input-group {
+  position: relative;
+  margin: 30px 0 30px 332px;
+  width: 310px;
+  border-bottom: 2px solid #fff;
+  color: white;
+}
+
+.input-box label {
+  position: absolute;
+  left: 5px;
+  color: #fff;
+}
+
+.input-box input, .input-phone input, .input-date input {
+  width: 100%;
+  height: 50px;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 1em;
+  padding: 0 35px 0 5px;
+  color: white;
+}
+
+.input-group select {
+  width: 100%;
+  height: 50px;
+  background: transparent;
+  border: none;
+  font-size: 1em;
+  padding: 0 35px 0 5px;
+}
+
+.error-message {
+  color: rgb(255, 0, 0);
+  position: absolute;
+  top: 110%;
+  left: 5px;
+  font-size: 1em;
+}
+
+button {
+  width: 31%;
+  margin-left: 330px;
+  height: 40px;
+  border-radius: 40px;
+  background: #fff;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: 600;
+}
+
+.btn{
+  width: 10%;
+  margin-left: 260px;
+  margin-top: 10px;
+}
+
+table {
+  width: 60%;
+  margin-left: 100px;
+  padding: 30px;
+  min-height: 90px;
+  border-radius: 10px;
+  border-color: #fff;
+}
+
+th {
+  border-radius: 10px;
+  border: 2px solid #fff;
+  height: 40px;
+
+}
+
+td {
+  border-radius: 10px;
+  border: 2px solid #fff;
+  height: 40px;
+}
+
+td button {
+  margin-left: 20px;
+}
+
+@media (max-width: 768px) {
+  body {
+    height: auto;
+  }
+
+  .input-box, .input-gender, .input-phone, .input-date, .input-group {
+    margin: 30px 0;
+  }
+
+  button {
+    width: 90%;
+    margin-left: -0px;
+  }
+
+  .btn {
+    width: 30%;
+    margin-left: 46px;
+  }
+
+  table {
+    width: 100%;
+    display: flex;
+    margin-left: -0px;
+  }
+
+  thead tr {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  th {
+    width: calc(50% - 10px);
+    margin-bottom: 10px;
+  }
+
+  tbody {
+    display: block;
+    position: absolute;
+    margin-top: 350px;
+    margin-left: -50px;
+    justify-content: center;
+  }
+
+  tbody tr {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  td {
+    width: calc(50% - 10px);
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+
+  td button {
+    margin-left: 0;
+    width: 30%;
+  }
 }
 </style>
