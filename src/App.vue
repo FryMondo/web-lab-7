@@ -42,7 +42,7 @@
       </div>
       <div class="input-date">
         <label>Дата народження:</label>
-        <input v-model="birthDate" @input="clearError('date-error')" type="date">
+        <input v-model="birthDate" @input="clearError('date-error')" type="date" :min="minDate" :max="maxDate">
         <div class="error-message" id="date-error">{{ errors.birthDate }}</div>
       </div>
       <div class="input-group">
@@ -99,8 +99,8 @@ export default {
     return {
       userinfo: [
         {
-          id: 1, email: 'example@gmail.com', password: 'qwerty123', surname: 'Petrenko', firstname: 'Petro',
-          middleName: 'Petrovich', gender: "Чоловік", phone: "+38(012) 345-67-89", birthDate: "2023-10-11",
+          id: 1, email: 'example@gmail.com', password: 'qwerty123', surname: 'Петренко', firstname: 'Петро',
+          middleName: 'Петрович', gender: "Чоловік", phone: "+38(012) 345-67-89", birthDate: "1983-10-11",
           group: "IA-22", selected: false
         }
       ],
@@ -114,7 +114,8 @@ export default {
       birthDate: '',
       group: '',
       errors: {},
-      selectedRows: []
+      minDate: '1900-06-19',
+      maxDate: '2023-10-26'
     }
   },
   methods: {
