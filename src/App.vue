@@ -4,58 +4,58 @@
       <h2>Реєстрація</h2>
       <div class="input-box">
         <label>Email:</label>
-        <input v-model="email" @input="clearError('email-error')" type="text">
+        <input v-model="email" @input="clearError('email')" type="text">
         <div class="error-message" id="email-error">{{ errors.email }}</div>
       </div>
       <div class="input-box">
         <label>Пароль:</label>
-        <input v-model="password" @input="clearError('password-error')" type="password">
+        <input v-model="password" @input="clearError('password')" type="password">
         <div class="error-message" id="password-error">{{ errors.password }}</div>
       </div>
       <div class="input-box">
         <label>Прізвище:</label>
-        <input v-model="surname" @input="clearError('surname-error')" type="text">
+        <input v-model="surname" @input="clearError('surname')" type="text">
         <div class="error-message" id="surname-error">{{ errors.surname }}</div>
       </div>
       <div class="input-box">
         <label>Ім'я:</label>
-        <input v-model="firstname" @input="clearError('first-name-error')" type="text">
+        <input v-model="firstname" @input="clearError('firstname')" type="text">
         <div class="error-message" id="first-name-error">{{ errors.firstname }}</div>
       </div>
       <div class="input-box">
         <label>По батькові:</label>
-        <input v-model="middleName" @input="clearError('middle-name-error')" type="text">
+        <input v-model="middleName" @input="clearError('middleName')" type="text">
         <div class="error-message" id="middle-name-error">{{ errors.middleName }}</div>
       </div>
       <div class="input-gender">
-        <label>Стать:</label>
+        <label>Стать: </label>
         <label>Чоловік</label>
-        <input v-model="gender" @input="clearError('gender-error')" type="radio" value="Чоловік">
+        <input v-model="gender" @input="clearError('gender')" type="radio" value="Чоловік">
         <label>Жінка</label>
-        <input v-model="gender" @input="clearError('gender-error')" type="radio" value="Жінка">
+        <input v-model="gender" @input="clearError('gender')" type="radio" value="Жінка">
         <div class="error-message" id="gender-error">{{ errors.gender }}</div>
       </div>
       <div class="input-phone">
         <label>Номер телефону:</label>
-        <input v-model="phone" @input="onPhoneInput" type="text">
+        <input v-model="phone" v-imask="'+{38}(\\000) 000-00-00'" type="text" @input="clearError('phone')">
         <div class="error-message" id="phone-error">{{ errors.phone }}</div>
       </div>
       <div class="input-date">
         <label>Дата народження:</label>
-        <input v-model="birthDate" @input="clearError('date-error')" type="date" :min="minDate" :max="maxDate">
+        <input v-model="birthDate" @input="clearError('birthDate')" type="date" :min="minDate" :max="maxDate">
         <div class="error-message" id="date-error">{{ errors.birthDate }}</div>
       </div>
       <div class="input-group">
         <label>Група:</label>
-        <select v-model="group" @change="clearError('group-error')">
+        <select v-model="group" @change="clearError('groupErr')">
           <option value="ІА-21">ІА-21</option>
           <option value="ІА-22">ІА-22</option>
           <option value="ІА-23">ІА-23</option>
           <option value="ІА-24">ІА-24</option>
         </select>
-        <div class="error-message" id="group-error">{{ errors.group }}</div>
+        <div class="error-message" id="group-error">{{ errors.groupErr }}</div>
       </div>
-      <button @click="validateAndCreateUser">Зареєструватися</button>
+      <button @click="createUser">Зареєструватися</button>
     </form>
     <button class="btn" @click="deleteSelectedRows">Видалити</button>
     <button class="btn" @click="duplicateSelectedRows">Дублювати</button>
@@ -93,6 +93,7 @@
 </template>
 
 <script>
+import {IMaskDirective} from "vue-imask";
 
 export default {
   data() {
@@ -110,16 +111,21 @@ export default {
       firstname: '',
       middleName: '',
       gender: '',
-      phone: '+38(0__) ___-__-__',
+      phone: '',
       birthDate: '',
       group: '',
       errors: {},
       minDate: '1900-06-19',
-      maxDate: '2023-10-26'
+      maxDate: ''
     }
   },
   methods: {
     createUser() {
+      if (!this.validateEmail() || !this.validatePassword() || !this.validateSurname() ||
+          !this.validateFirstName() || !this.validateMiddleName() || !this.validateGender() ||
+          !this.validatePhone() || !this.validateBirthDate() || !this.validateGroup()) {
+        return;
+      }
       const newUser = {
         id: Date.now(),
         email: this.email,
@@ -130,7 +136,7 @@ export default {
         gender: this.gender,
         phone: this.phone,
         birthDate: this.birthDate,
-        group: this.group
+        group: this.group,
       };
       this.userinfo.push(newUser);
       this.email = '';
@@ -139,113 +145,142 @@ export default {
       this.firstname = '';
       this.middleName = '';
       this.gender = '';
-      this.phone = '+38(0__) ___-__-__';
+      this.phone = '';
       this.birthDate = '';
       this.group = '';
-
-      this.errors = {};
-    },
-    onPhoneInput() {
-      let phoneNumber = this.phone.replace(/\D/g, '');
-      if (!phoneNumber.startsWith('38')) {
-        phoneNumber = '38' + phoneNumber;
-      }
-      phoneNumber = phoneNumber.substr(0, 12);
-
-      let formattedPhoneNumber = '+38(';
-      for (let i = 2; i < phoneNumber.length && i < 5; i++) {
-        formattedPhoneNumber += phoneNumber[i];
-      }
-      formattedPhoneNumber += ') ';
-      for (let i = 5; i < phoneNumber.length && i < 8; i++) {
-        formattedPhoneNumber += phoneNumber[i];
-      }
-      formattedPhoneNumber += '-';
-      for (let i = 8; i < phoneNumber.length && i < 12; i++) {
-        formattedPhoneNumber += phoneNumber[i];
-      }
-      this.phone = formattedPhoneNumber;
-
-      if (phoneNumber.length === 12) {
-        this.clearError('phone-error');
-      } else {
-        this.errors.phone = '(!) Заповніть всі цифри в номері';
-      }
     },
     clearError(fieldId) {
-      this.errors[fieldId] = '';
+      delete this.errors[fieldId];
     },
-    validateAndCreateUser() {
-      this.errors = {};
-
-      if (!this.email) {
+    validateEmail() {
+      if (!this.email.trim()) {
         this.errors.email = '(!) Заповніть поле Email';
-      } else if (!this.validateEmail(this.email)) {
+        return false;
+      } else if (!this.RegExpEmail(this.email)) {
         this.errors.email = '(!) Невірний формат Email';
+        return false;
+      } else {
+        return true;
       }
-
-      if (!this.password) {
+    },
+    RegExpEmail(email) {
+      const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+      return emailPattern.test(email);
+    },
+    validatePassword() {
+      if (!this.password.trim()) {
         this.errors.password = '(!) Заповніть поле Пароль';
-      } else if (this.password.length < 8) {
+        return false;
+      } else if (this.password.trim().length < 8) {
         this.errors.password = '(!) Пароль повинен містити принаймні 8 символів';
+        return false;
+      } else {
+        return true;
       }
-
-      if (!this.surname) {
+    },
+    validateSurname() {
+      if (!this.surname.trim()) {
         this.errors.surname = '(!) Заповніть поле Прізвище';
+        return false;
       } else if (!/^[a-zA-Zа-яА-ЯёЁ\s\-']+$/i.test(this.surname)) {
         this.errors.surname = '(!) Поле Прізвище не повинно містити цифри.';
+        return false;
+      } else {
+        return true;
       }
-
-      if (!this.firstname) {
+    },
+    validateFirstName() {
+      if (!this.firstname.trim()) {
         this.errors.firstname = '(!) Заповніть поле Ім\'я';
+        return false;
       } else if (!/^[a-zA-Zа-яА-ЯёЁ\s\-']+$/i.test(this.firstname)) {
         this.errors.firstname = '(!) Поле Ім\'я не повинно містити цифри.';
+        return false;
+      } else {
+        return true;
       }
-
-      if (!this.middleName) {
+    },
+    validateMiddleName() {
+      if (!this.middleName.trim()) {
         this.errors.middleName = '(!) Заповніть поле По-батькові';
+        return false;
       } else if (!/^[a-zA-Zа-яА-ЯёЁ\s\-']+$/i.test(this.middleName)) {
         this.errors.middleName = '(!) Поле По-батькові не повинно містити цифри.';
+        return false;
+      } else {
+        return true;
       }
-
-      if (!this.gender) {
-        this.errors.gender = '(!) Виберіть свою стать';
+    },
+    validateGender() {
+      if (this.gender === '') {
+        this.errors.gender = "(!) Виберіть стать";
+        return false;
+      } else {
+        return true;
       }
-
+    },
+    validatePhone() {
+      if (this.phone.length >= 18) {
+        return true;
+      } else {
+        this.errors.phone = '(!) Введіть всі цифри в номер';
+        return false;
+      }
+    },
+    validateGroup() {
       if (!this.group) {
-        this.errors.group = '(!) Виберіть групу';
+        this.errors.groupErr = '(!) Виберіть групу';
+        return false;
+      } else {
+        return true;
       }
+    },
+    validateBirthDate() {
+      const birthDate = new Date(this.birthDate);
+      const today = new Date();
+      const minBirthDate = new Date(1900, 5, 22);
 
       if (!this.birthDate) {
         this.errors.birthDate = '(!) Заповніть дату народження';
+        return false;
+      } else if (birthDate > today) {
+        this.errors.birthDate = '(!) Дата народження не може бути у майбутньому.';
+        return false;
+      } else if (birthDate < minBirthDate) {
+        this.errors.birthDate = '(!) Мінімальний рік народження - 1900';
+        return false;
       } else {
-        const birthDate = new Date(this.birthDate);
-        const today = new Date();
-        const minBirthDate = new Date(1900, 5, 22);
-        if (birthDate > today) {
-          this.errors.birthDate = '(!) Дата народження не може бути у майбутньому.';
-        }
-        if (birthDate < minBirthDate) {
-          this.errors.birthDate = '(!) Мінімальний рік народження - 1900';
-        }
+        return true;
       }
-
-      if (Object.keys(this.errors).length === 0) {
-        this.createUser();
-      }
-    },
-    validateEmail(email) {
-      const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-      return emailPattern.test(email);
     },
     deleteSelectedRows() {
       this.userinfo = this.userinfo.filter(user => !user.selected);
     },
     duplicateSelectedRows() {
       const selectedUsers = this.userinfo.filter(user => user.selected);
-      const duplicatedUsers = selectedUsers.map(user => ({ ...user, id: Date.now(), selected: false }));
+      const duplicatedUsers = selectedUsers.map(user => ({...user, id: Date.now(), selected: false}));
       this.userinfo = [...this.userinfo, ...duplicatedUsers];
     }
+  },
+  mounted() {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+
+    const yyyy = yesterday.getFullYear();
+    let mm = (yesterday.getMonth() + 1).toString();
+    if (mm.length < 2) {
+      mm = `0${mm}`;
+    }
+    let dd = yesterday.getDate().toString();
+    if (dd.length < 2) {
+      dd = `0${dd}`;
+    }
+
+    this.maxDate = `${yyyy}-${mm}-${dd}`;
+  },
+  directives: {
+    imask: IMaskDirective
   }
 };
 </script>
@@ -263,7 +298,6 @@ body {
 }
 
 .form-box {
-  padding: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   border: 2px solid rgba(255, 255, 255, 0.5);
   border-radius: 20px;
@@ -277,7 +311,7 @@ h2 {
 
 .input-box, .input-gender, .input-phone, .input-date, .input-group {
   position: relative;
-  margin: 30px 0 30px 332px;
+  margin: 30px 0 30px 380px;
   width: 310px;
   border-bottom: 2px solid #fff;
   color: white;
@@ -286,6 +320,7 @@ h2 {
 .input-box label {
   position: absolute;
   left: 5px;
+  margin-top: -5px;
   color: #fff;
 }
 
@@ -318,8 +353,8 @@ h2 {
 }
 
 button {
-  width: 31%;
-  margin-left: 330px;
+  width: 29%;
+  margin-left: 376px;
   height: 40px;
   border-radius: 40px;
   background: #fff;
@@ -330,9 +365,9 @@ button {
   font-weight: 600;
 }
 
-.btn{
+.btn {
   width: 10%;
-  margin-left: 260px;
+  margin-left: 280px;
   margin-top: 10px;
 }
 
@@ -367,8 +402,12 @@ td button {
     height: auto;
   }
 
+  .form-box {
+    padding: 20px;
+  }
+
   .input-box, .input-gender, .input-phone, .input-date, .input-group {
-    margin: 30px 0;
+    margin: 20px 0;
   }
 
   button {
