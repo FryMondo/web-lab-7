@@ -36,7 +36,8 @@
     </div>
     <div class="input-phone">
       <label>Номер телефону:</label>
-      <input v-model="form.phone" v-imask="'+{38}(\\000) 000-00-00'" type="text" @input="clearError('phone')">
+      <input v-model="form.phone" v-imask="'+{38}(\\000) 000-00-00'" type="text"
+             @input="clearError('phone')" placeholder="+38(0__) ___-__-__">
       <div class="error-message" id="phone-error">{{ form.errors.phone }}</div>
     </div>
     <div class="input-date">
@@ -128,7 +129,16 @@ export default {
         this.form.errors.password = '(!) Заповніть поле Пароль';
         return false;
       } else if (this.form.password.trim().length < 8) {
-        this.form.errors.password = '(!) Пароль повинен містити принаймні 8 символів';
+        this.form.errors.password = '(!) Пароль повинен містити мінімум 8 символів';
+        return false;
+      } else if (/\s/.test(this.form.password)) {
+        this.form.errors.password = '(!) Пароль не повинен містити пробіли';
+        return false;
+      } else if (!/[a-zа-яёіїє]/.test(this.form.password)) {
+        this.form.errors.password = '(!) Пароль повинен містити 1 маленьку літеру';
+        return false;
+      } else if (!/[A-ZА-ЯЁІЇЄ]/.test(this.form.password)) {
+        this.form.errors.password = '(!) Пароль повинен містити 1 велику літеру';
         return false;
       } else {
         return true;
@@ -138,8 +148,8 @@ export default {
       if (!this.form.surname.trim()) {
         this.form.errors.surname = '(!) Заповніть поле Прізвище';
         return false;
-      } else if (!/^[a-zA-Zа-яА-ЯёЁ\s\-']+$/i.test(this.form.surname)) {
-        this.form.errors.surname = '(!) Поле Прізвище не повинно містити цифри.';
+      } else if (!/^[a-zA-Zа-яА-ЯёЁіІїЇєЄ\s\-']+$/i.test(this.form.surname)) {
+        this.form.errors.surname = '(!) Поле Прізвище не повинно містити цифри';
         return false;
       } else {
         return true;
@@ -149,8 +159,8 @@ export default {
       if (!this.form.firstname.trim()) {
         this.form.errors.firstname = '(!) Заповніть поле Ім\'я';
         return false;
-      } else if (!/^[a-zA-Zа-яА-ЯёЁ\s\-']+$/i.test(this.form.firstname)) {
-        this.form.errors.firstname = '(!) Поле Ім\'я не повинно містити цифри.';
+      } else if (!/^[a-zA-Zа-яА-ЯёЁіІїЇєЄ\s\-']+$/i.test(this.form.firstname)) {
+        this.form.errors.firstname = '(!) Поле Ім\'я не повинно містити цифри';
         return false;
       } else {
         return true;
@@ -160,8 +170,8 @@ export default {
       if (!this.form.middleName.trim()) {
         this.form.errors.middleName = '(!) Заповніть поле По-батькові';
         return false;
-      } else if (!/^[a-zA-Zа-яА-ЯёЁ\s\-']+$/i.test(this.form.middleName)) {
-        this.form.errors.middleName = '(!) Поле По-батькові не повинно містити цифри.';
+      } else if (!/^[a-zA-Zа-яА-ЯёЁіІїЇєЄ\s\-']+$/i.test(this.form.middleName)) {
+        this.form.errors.middleName = '(!) Поле По-батькові не повинно містити цифри';
         return false;
       } else {
         return true;
@@ -199,7 +209,7 @@ export default {
         this.form.errors.birthDate = '(!) Заповніть дату народження';
         return false;
       } else if (birthDate > today) {
-        this.form.errors.birthDate = '(!) Дата народження не може бути у майбутньому.';
+        this.form.errors.birthDate = '(!) Дата народження не може бути у майбутньому';
         return false;
       } else if (birthDate < minBirthDate) {
         this.form.errors.birthDate = '(!) Мінімальний рік народження - 1900';
@@ -245,13 +255,23 @@ export default {
   color: rgb(255, 0, 0);
   position: absolute;
   top: 110%;
-  left: 5px;
   font-size: 1em;
+  width: 400px;
 }
 
 @media (max-width: 768px) {
   .input-box, .input-gender, .input-phone, .input-date, .input-group {
     margin: 20px 0;
+  }
+
+  .error-message {
+    width: 347px;
+    margin-left: -10px;
+  }
+
+  .input-box label {
+    padding: 5px;
+    margin-left: -5px;
   }
 }
 </style>
