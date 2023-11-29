@@ -26,14 +26,6 @@
       <input v-model="form.middleName" @input="clearError('middleName')" type="text">
       <div class="error-message" id="middle-name-error">{{ form.errors.middleName }}</div>
     </div>
-    <div class="input-gender">
-      <label>Стать: </label>
-      <label>Чоловік</label>
-      <input v-model="form.gender" @input="clearError('gender')" type="radio" value="Чоловік">
-      <label>Жінка</label>
-      <input v-model="form.gender" @input="clearError('gender')" type="radio" value="Жінка">
-      <div class="error-message" id="gender-error">{{ form.errors.gender }}</div>
-    </div>
     <div class="input-phone">
       <label>Номер телефону:</label>
       <input v-model="form.phone" v-imask="'+{38}(\\000) 000-00-00'" type="text"
