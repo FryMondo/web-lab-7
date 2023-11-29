@@ -38,16 +38,6 @@
              type="date" :min="form.minDate" :max="form.maxDate">
       <div class="error-message" id="date-error">{{ form.errors.birthDate }}</div>
     </div>
-    <div class="input-group">
-      <label>Група:</label>
-      <select v-model="form.group" @change="clearError('groupErr')">
-        <option value="ІА-21">ІА-21</option>
-        <option value="ІА-22">ІА-22</option>
-        <option value="ІА-23">ІА-23</option>
-        <option value="ІА-24">ІА-24</option>
-      </select>
-      <div class="error-message" id="group-error">{{ form.errors.groupErr }}</div>
-    </div>
     <button @click="createUser">Зареєструватися</button>
   </form>
 </template>
