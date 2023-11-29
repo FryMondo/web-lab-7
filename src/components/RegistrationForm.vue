@@ -175,14 +175,6 @@ export default {
         return false;
       }
     },
-    validateGroup() {
-      if (!this.form.group) {
-        this.form.errors.groupErr = '(!) Виберіть групу';
-        return false;
-      } else {
-        return true;
-      }
-    },
     validateBirthDate() {
       const birthDate = new Date(this.form.birthDate);
       const today = new Date();
