@@ -26,6 +26,14 @@
       <input v-model="form.middleName" @input="clearError('middleName')" type="text">
       <div class="error-message" id="middle-name-error">{{ form.errors.middleName }}</div>
     </div>
+    <div class="input-gender">
+      <label>Стать: </label>
+      <label>Чоловік</label>
+      <input v-model="form.gender" @input="clearError('gender')" type="radio" value="Чоловік">
+      <label>Жінка</label>
+      <input v-model="form.gender" @input="clearError('gender')" type="radio" value="Жінка">
+      <div class="error-message" id="gender-error">{{ form.errors.gender }}</div>
+    </div>
     <div class="input-phone">
       <label>Номер телефону:</label>
       <input v-model="form.phone" v-imask="'+{38}(\\000) 000-00-00'" type="text"
@@ -37,6 +45,16 @@
       <input v-model="form.birthDate" @input="clearError('birthDate')"
              type="date" :min="form.minDate" :max="form.maxDate">
       <div class="error-message" id="date-error">{{ form.errors.birthDate }}</div>
+    </div>
+    <div class="input-group">
+      <label>Група:</label>
+      <select v-model="form.group" @change="clearError('groupErr')">
+        <option value="ІА-21">ІА-21</option>
+        <option value="ІА-22">ІА-22</option>
+        <option value="ІА-23">ІА-23</option>
+        <option value="ІА-24">ІА-24</option>
+      </select>
+      <div class="error-message" id="group-error">{{ form.errors.groupErr }}</div>
     </div>
     <button @click="createUser">Зареєструватися</button>
   </form>
@@ -173,6 +191,14 @@ export default {
       } else {
         this.form.errors.phone = '(!) Введіть всі цифри в номер';
         return false;
+      }
+    },
+    validateGroup() {
+      if (!this.form.group) {
+        this.form.errors.groupErr = '(!) Виберіть групу';
+        return false;
+      } else {
+        return true;
       }
     },
     validateBirthDate() {
